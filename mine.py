@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import (QFont, QPainter, QColor)
+from PyQt5.QtCore import (Qt, QEvent)
 import sys
 import numpy as np
 
@@ -50,7 +51,7 @@ class gameBoard(QWidget):
                 # )
 
                 grid.addWidget(self.butTiles[i][j], i, j, 1, 1)
-                self.butTiles[i][j].clicked.connect(self.buttonClicked)
+                self.butTiles[i][j].clicked.connect(lambda state, x=i, y=j: self.buttonClicked(x, y))  # 클릭한 버튼의 좌표 값 전달
         self.show()
 
     def setBoardInfo(self):
@@ -64,11 +65,12 @@ class gameBoard(QWidget):
                         if (self.board[nx][ny] != 9):
                             self.board[nx][ny] += 1
 
-    def buttonClicked(self):
-        btn = self.sender()
-        print(btn)
-        btn.setText('1')
-        btn.setDisabled(True)
+    def buttonClicked(self, x, y):
+        print(x, y)
+        # if QMouseEvent.button() == QtCore.Qt.RightButton:
+        #     self.butTiles[x][y].setText('m')
+        self.butTiles[x][y].setText(str(self.board[x][y]))
+        self.butTiles[x][y].setDisabled(True)
 
 
 
