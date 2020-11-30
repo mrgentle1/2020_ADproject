@@ -65,8 +65,37 @@ class gameBoard(QWidget):
                 if (self.countMine(self, k, l) != 0):
                     self.butTiles[k][l].setText(self.countMine(self,k,l))
                     break
-                #else:
 
+                else:
+                    listLength = 0
+                    l1 = []
+                    l1 += self.getNumAroundZoro(k,l)
+                    listLength = len(l1)
+                    while(1):
+                        for m,n in l1:
+                            l1 += self.getNumAroundZoro(m,n)
+                            listLength = len(list(set(l1)))
+
+                        if len(l1)==listLength:
+                            break
+
+                        else:
+                            continue
+
+                    for m,n in l1:
+                        self.butTiles[m][n].setText(self.countMine(self, m, n))
+
+
+
+
+
+    def getNumAroundZoro (self, i,j):
+        l1 = []
+        for k in range(i-1,i+2):
+            for l in range(j-1, j+2):
+                l1.append((k,l))
+
+                return l1
 
 
 
