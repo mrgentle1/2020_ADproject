@@ -19,6 +19,7 @@ class gameBoard(QWidget):
         self.tileSize = self.w * self.h  # 모든 타일의 개수
         self.tileLeft = self.w * self.h - self.mine  # 지뢰가 없는 타일 개수
         self.flag = 0  # 사용된 flag의 개수
+        self.checked = True
 
         # 지뢰를 랜덤한 위치에 배치
         self.board = np.zeros(self.w * self.h, dtype='i')
@@ -52,6 +53,8 @@ class gameBoard(QWidget):
 
                 grid.addWidget(self.butTiles[i][j], i, j, 1, 1)
                 self.butTiles[i][j].clicked.connect(lambda state, x=i, y=j: self.buttonClicked(x, y))  # 클릭한 버튼의 좌표 값 전달
+                self.butTiles[i][j].setContextMenuPolicy(Qt.CustomContextMenu)
+                self.butTiles[i][j].customContextMenuRequested.connect(lambda state, x=i, y=j: self.rightClicked(x, y))
         self.show()
 
     def setBoardInfo(self):
@@ -67,17 +70,14 @@ class gameBoard(QWidget):
 
     def buttonClicked(self, x, y):
         print(x, y)
-        # if QMouseEvent.button() == QtCore.Qt.RightButton:
-        #     self.butTiles[x][y].setText('m')
         self.butTiles[x][y].setText(str(self.board[x][y]))
         self.butTiles[x][y].setDisabled(True)
+    
+    def rightClicked(self, x, y):
+        self.butTiles[x][y].setText('★' if self.checked else '') 
+        self.checked = not self.checked
 
 
-
-
-
-# class mineGame(QWidget):
-#     """GUI로 나타냄"""
 # class saveload:
 #     """게임 진행상태와 결과 저장/불러오기"""
 
