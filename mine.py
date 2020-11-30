@@ -17,6 +17,7 @@ class gameBoard(QWidget):
         self.tileLeft = self.w * self.h - self.mine  # 지뢰가 없는 타일 개수
         self.flag = 0  # 사용된 flag의 개수
 
+        # 지뢰를 랜덤한 위치에 배치
         self.board = np.zeros(self.w * self.h, dtype='i')
         self.board[:self.mine] = 9
         np.random.shuffle(self.board)
@@ -30,7 +31,8 @@ class gameBoard(QWidget):
         grid = QGridLayout()
         grid.setSpacing(0)
         self.setLayout(grid)
-        self.butTiles = [[] for _ in range(self.h)]
+        self.butTiles = [[] for _ in range(self.h)]  # 각 타일 버튼 object를 2차원 리스트에 저장
+
         for i in range(self.h):
             for j in range(self.w):
                 self.butTiles[i].append(QPushButton(self))
