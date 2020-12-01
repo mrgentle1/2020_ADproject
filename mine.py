@@ -66,12 +66,42 @@ class gameBoard(QWidget):
                         if(nx >= self.h or nx < 0 or ny >= self.w or ny < 0):
                             continue
                         if (self.board[nx][ny] != 9):
-                            self.board[nx][ny] += 1
+                            self.board[nx][ny] += 1      
+
+    def findZero(self, x, y):
+        if self.board[x][y] != 0:  # base case: 해당 타일이 0이 아닌경우, 해당 타일의 숫자 출력하고 return
+            self.butTiles[x][y].setText(str(self.board[x][y]))
+            self.butTiles[x][y].setDisabled(True)
+            return
+
+        self.butTiles[x][y].setText('')
+        self.butTiles[x][y].setDisabled(True)
+
+        for i, j in self.location:
+            nx, ny = x + i, y + j
+            if(nx >= self.h or nx < 0 or ny >= self.w or ny < 0 or not self.butTiles[nx][ny].isEnabled()):
+                continue
+
+            if (self.board[nx][ny] == 0):  # 다음 타일의 숫자가 0일 때 재귀호출
+                self.findZero(nx, ny)
+
+            elif (self.board[nx][ny] != 9):  # 다음 타일의 숫자가 지뢰가 아닐 때 해당 타일의 숫자 출력
+                self.butTiles[nx][ny].setText(str(self.board[nx][ny]))
+                self.butTiles[nx][ny].setDisabled(True)
+
+            else:  # 다음 타일의 숫자가 지뢰(9)일 때는 continue
+                continue
+
 
     def buttonClicked(self, x, y):
         print(x, y)
-        self.butTiles[x][y].setText(str(self.board[x][y]))
-        self.butTiles[x][y].setDisabled(True)
+        val = self.board[x][y]
+        if val == 0:
+            self.findZero(x, y)
+
+        else:
+            self.butTiles[x][y].setText(str(val))
+            self.butTiles[x][y].setDisabled(True)
     
     def rightClicked(self, x, y):
         self.butTiles[x][y].setText('★' if self.checked else '') 
