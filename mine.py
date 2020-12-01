@@ -81,31 +81,47 @@ class gameBoard(QWidget):
             nx, ny = x + i, y + j
             if(nx >= self.h or nx < 0 or ny >= self.w or ny < 0 or not self.butTiles[nx][ny].isEnabled()):
                 continue
-
             if (self.board[nx][ny] == 0):  # 다음 타일의 숫자가 0일 때 재귀호출
                 self.findZero(nx, ny)
-
             elif (self.board[nx][ny] != 9):  # 다음 타일의 숫자가 지뢰가 아닐 때 해당 타일의 숫자 출력
                 self.butTiles[nx][ny].setText(str(self.board[nx][ny]))
                 self.butTiles[nx][ny].setDisabled(True)
-
             else:  # 다음 타일의 숫자가 지뢰(9)일 때는 continue
                 continue
 
-
     def buttonClicked(self, x, y):
-        print(x, y)
         val = self.board[x][y]
         if val == 0:
             self.findZero(x, y)
-
-        else:
+        elif val != 9:
             self.butTiles[x][y].setText(str(val))
             self.butTiles[x][y].setDisabled(True)
+        else:
+            self.loseGame()
     
     def rightClicked(self, x, y):
         self.butTiles[x][y].setText('★' if self.checked else '') 
         self.checked = not self.checked
+
+    def loseGame(self):
+        for x in range(self.h):
+            for y in range(self.w):
+                if self.board[x][y] == 9:
+                    self.butTiles[x][y].setStyleSheet(
+                        "background-color:red;"
+                        "color:pink;"
+                    )
+                    self.butTiles[x][y].setText('♥')
+                    self.butTiles[x][y].setDisabled(True)
+
+    def closeEvent(self, event):
+        reply = QMessageBox.question(self, "지뢰 찾기", "종료하시겠습니까?",
+        QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
+
 
 
 # class saveload:
