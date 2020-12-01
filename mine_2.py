@@ -9,32 +9,47 @@ class gameLevel(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
+        self.level = 0
 
     def initUI(self):
         self.setWindowTitle("난이도 설정")
-        rbtnLv1 = QRadioButton('쉬움',self)
-        rbtnLv2 = QRadioButton('보통', self)
-        rbtnLv3 = QRadioButton('어려움', self)
+        self.rbtnLv1 = QRadioButton('쉬움',self)
+        self.rbtnLv2 = QRadioButton('보통', self)
+        self.rbtnLv3 = QRadioButton('어려움', self)
+        self.rbtnLv1.setChecked(True)
 
-        rbtnLv1.setChecked(True)
+        self.btn = QPushButton('난이도 선택')
+        self.btn.clicked.connect(self.btnClicked)
+
+        self.rbtnLv1.setChecked(True)
 
         hbox = QHBoxLayout()
         hbox.addStretch(1)
-        hbox.addWidget(rbtnLv1)
+        hbox.addWidget(self.rbtnLv1)
         hbox.addStretch(1)
-        hbox.addWidget(rbtnLv2)
+        hbox.addWidget(self.rbtnLv2)
         hbox.addStretch(1)
-        hbox.addWidget(rbtnLv3)
+        hbox.addWidget(self.rbtnLv3)
         hbox.addStretch(1)
 
         vbox = QVBoxLayout()
         vbox.addStretch(1)
         vbox.addLayout(hbox)
         vbox.addStretch(1)
+        vbox.addWidget(self.btn)
+        vbox.addStretch(1)
 
         self.setLayout(vbox)
         self.setGeometry(300, 300, 300, 200)
         self.show()
+
+    def btnClicked(self):
+        if self.rbtnLv1.isChecked():
+            self.level = 0
+        elif self.rbtnLv2.isChecked():
+            self.level = 1
+        elif self.rbtnLv3.isChecked():
+            self.level = 2
 
 class gameBoard(QWidget):
     """선택된 난이도에 따라 게임 보드판 생성"""
@@ -161,6 +176,6 @@ class gameBoard(QWidget):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     TEST = gameLevel()
-    test = gameBoard(0)
+    test = gameBoard(TEST.level)
     print(test.board)
     sys.exit(app.exec_())
