@@ -51,6 +51,9 @@ class gameLevel(QWidget):
         elif self.rbtnLv3.isChecked():
             self.level = 2
 
+        test = gameBoard(self.level)
+        print(test.board)
+
 class gameBoard(QWidget):
     """선택된 난이도에 따라 게임 보드판 생성"""
     mine_list = [10, 40, 99]
@@ -79,6 +82,9 @@ class gameBoard(QWidget):
 
     def initUI(self):
         self.setWindowTitle("지뢰 찾기")
+        #self.btnStart = QPushButton("게임 시작")
+        #self.btnStart.move(self, 0,0)
+        #self.btnStart.clicked().connect(self.clickedStart)
         grid = QGridLayout()
         grid.setSpacing(0)
         self.setLayout(grid)
@@ -103,6 +109,9 @@ class gameBoard(QWidget):
                 self.butTiles[i][j].setContextMenuPolicy(Qt.CustomContextMenu)
                 self.butTiles[i][j].customContextMenuRequested.connect(lambda state, x=i, y=j: self.rightClicked(x, y))
         self.show()
+
+    def clickedStart(self):
+        gameBoard(self.level)
 
     def setBoardInfo(self):
         for i in range(self.h):
