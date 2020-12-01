@@ -1,8 +1,11 @@
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import (QFont, QPainter, QColor)
+from PyQt5.QtGui import *
 from PyQt5.QtCore import (Qt, QEvent)
 import sys
 import numpy as np
+
+# class gameLevel(QWidget):
+
 
 class gameBoard(QWidget):
     """선택된 난이도에 따라 게임 보드판 생성"""
@@ -19,7 +22,7 @@ class gameBoard(QWidget):
         self.tileSize = self.w * self.h  # 모든 타일의 개수
         self.tileLeft = self.w * self.h - self.mine  # 지뢰가 없는 타일 개수
         self.flag = 0  # 사용된 flag의 개수
-        self.checked = True
+        self.checked = [[True for _ in range(self.w)] for _ in range(self.h)]
 
         # 지뢰를 랜덤한 위치에 배치
         self.board = np.zeros(self.w * self.h, dtype='i')
@@ -100,8 +103,8 @@ class gameBoard(QWidget):
             self.loseGame()
     
     def rightClicked(self, x, y):
-        self.butTiles[x][y].setText('★' if self.checked else '') 
-        self.checked = not self.checked
+        self.butTiles[x][y].setText('★' if self.checked[x][y] else '') 
+        self.checked[x][y] = not self.checked[x][y]
 
     def loseGame(self):
         for x in range(self.h):
