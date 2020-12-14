@@ -4,7 +4,6 @@ from PyQt5.QtCore import (Qt, QEvent)
 import sys
 import numpy as np
 
-
 class gameLevel(QWidget):
     def __init__(self):
         super().__init__()
@@ -17,6 +16,9 @@ class gameLevel(QWidget):
         self.rbtnLv2 = QRadioButton('보통', self)
         self.rbtnLv3 = QRadioButton('어려움', self)
         self.rbtnLv1.setChecked(True)
+        self.qle = QLineEdit(self)
+        self.qle.setReadOnly(True)
+
 
         self.btn = QPushButton('난이도 선택')
         self.btn.clicked.connect(self.btnClicked)
@@ -37,6 +39,8 @@ class gameLevel(QWidget):
         vbox.addLayout(hbox)
         vbox.addStretch(1)
         vbox.addWidget(self.btn)
+        vbox.addStretch(1)
+        vbox.addWidget(self.qle)
         vbox.addStretch(1)
 
         self.setLayout(vbox)
@@ -70,6 +74,8 @@ class gameBoard(QWidget):
         self.tileLeft = self.w * self.h - self.mine  # 지뢰가 없는 타일 개수
         self.flag = 0  # 사용된 flag의 개수
         self.checked = [[True for _ in range(self.w)] for _ in range(self.h)]
+
+        self.qle.setText("you lose.")
 
         # 지뢰를 랜덤한 위치에 배치
         self.board = np.zeros(self.w * self.h, dtype='i')
@@ -154,6 +160,7 @@ class gameBoard(QWidget):
             self.butTiles[x][y].setDisabled(True)
         else:
             self.loseGame()
+            gameLevel.qle.setText("you lose.")
 
     def rightClicked(self, x, y):
         self.butTiles[x][y].setText('★' if self.checked[x][y] else '')
@@ -185,6 +192,6 @@ class gameBoard(QWidget):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     TEST = gameLevel()
-    test = gameBoard(TEST.level)
+    test = gameBoard(0)
     print(test.board)
     sys.exit(app.exec_())
