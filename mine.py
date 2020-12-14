@@ -1,8 +1,9 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from PyQt5.QtCore import (Qt, QEvent)
+from PyQt5.QtCore import (Qt, QEvent, QCoreApplication)
 import sys
 import numpy as np
+
 '''
 class win(QWidget):
     def __init__(self):
@@ -48,10 +49,11 @@ class lose(QWidget):
 '''
 
 class gameLevel(QWidget):
-    def __init__(self):
+    def __init__(self, obj=None):
         super().__init__()
         self.initUI()
         self.level = 0
+        if(isinstance(obj, gameBoard)): obj.close()
 
     def initUI(self):
         self.setWindowTitle("난이도 설정")
@@ -59,9 +61,6 @@ class gameLevel(QWidget):
         self.rbtnLv2 = QRadioButton('보통', self)
         self.rbtnLv3 = QRadioButton('어려움', self)
         self.rbtnLv1.setChecked(True)
-        self.qle = QLineEdit(self)
-        self.qle.setReadOnly(True)
-
 
         self.btn = QPushButton('난이도 선택')
         self.btn.clicked.connect(self.btnClicked)
@@ -83,8 +82,6 @@ class gameLevel(QWidget):
         vbox.addStretch(1)
         vbox.addWidget(self.btn)
         vbox.addStretch(1)
-        vbox.addWidget(self.qle)
-        vbox.addStretch(1)
 
         self.setLayout(vbox)
         self.setGeometry(300, 300, 300, 200)
@@ -98,13 +95,15 @@ class gameLevel(QWidget):
         elif self.rbtnLv3.isChecked():
             self.level = 2
 
+        self.newGame()
+        
+    def newGame(self):
         test = gameBoard(self.level)
-        print(test.board)
-        gameLevel.close(self)
+        # self.close()
 
-class gameBoard(QWidget):
+class gameBoard (QWidget):
     """선택된 난이도에 따라 게임 보드판 생성"""
-    mine_list = [10, 40, 99]
+    mine_list = [10, 40, 120]
     board_size = [(9, 9), (16, 16), (30, 30)]
     location = [(i, j) for i in range(-1, 2) for j in range(-1, 2)]  # 주변 8방향
     del (location[4])  # (0, 0) 제외
@@ -124,9 +123,10 @@ class gameBoard(QWidget):
         self.board[:self.mine] = 9
         np.random.shuffle(self.board)
         self.board = self.board.reshape(self.w, self.h)
+        self.initUI()
         self.setBoardInfo()
 
-        self.initUI()
+        
 
     def initUI(self):
         self.setWindowTitle("지뢰 찾기")
@@ -153,6 +153,7 @@ class gameBoard(QWidget):
                 # "border-color: grey;"
                 # "padding: 4px;"
                 # )
+
                 grid.addWidget(self.butTiles[i][j], i+1, j, 1, 1)
                 self.butTiles[i][j].clicked.connect(lambda state, x=i, y=j: self.buttonClicked(x, y))  # 클릭한 버튼의 좌표 값 전달
                 self.butTiles[i][j].setContextMenuPolicy(Qt.CustomContextMenu)
@@ -172,15 +173,38 @@ class gameBoard(QWidget):
                             continue
                         if (self.board[nx][ny] != 9):
                             self.board[nx][ny] += 1
+                            if (self.board[nx][ny] == 1):
+                                self.butTiles[nx][ny].setStyleSheet(
+                                    "color:green;"
+                                )
+                            elif (self.board[nx][ny] == 2):
+                                self.butTiles[nx][ny].setStyleSheet(
+                                    "color:blue;"
+                                )
+                            else:
+                                self.butTiles[nx][ny].setStyleSheet(
+                                    "color:red;"
+                                )
 
     def findZero(self, x, y):
+        if self.tileLeft == 0:
+            self.winGame()
+            return
         if self.board[x][y] != 0:  # base case: 해당 타일이 0이 아닌경우, 해당 타일의 숫자 출력하고 return
             self.butTiles[x][y].setText(str(self.board[x][y]))
             self.butTiles[x][y].setDisabled(True)
+            self.tileLeft -= 1
+            
+            if self.tileLeft == 0:
+                self.winGame()
             return
 
         self.butTiles[x][y].setText('')
         self.butTiles[x][y].setDisabled(True)
+        self.tileLeft -= 1
+        if self.tileLeft == 0:
+            self.winGame()
+        
 
         for i, j in self.location:
             nx, ny = x + i, y + j
@@ -191,19 +215,28 @@ class gameBoard(QWidget):
             elif (self.board[nx][ny] != 9):  # 다음 타일의 숫자가 지뢰가 아닐 때 해당 타일의 숫자 출력
                 self.butTiles[nx][ny].setText(str(self.board[nx][ny]))
                 self.butTiles[nx][ny].setDisabled(True)
+                self.tileLeft -= 1
+                if self.tileLeft == 0:
+                    self.winGame()
+                
             else:  # 다음 타일의 숫자가 지뢰(9)일 때는 continue
                 continue
 
     def buttonClicked(self, x, y):
+        if self.tileLeft == 0:
+            self.winGame()
         val = self.board[x][y]
         if val == 0:
             self.findZero(x, y)
         elif val != 9:
+            self.tileLeft -= 1
+            if self.tileLeft == 0:
+                self.winGame()
+            
             self.butTiles[x][y].setText(str(val))
             self.butTiles[x][y].setDisabled(True)
         else:
             self.loseGame()
-            TEST.qle.setText("You Lose")
 
     def rightClicked(self, x, y):
         self.butTiles[x][y].setText('★' if self.checked[x][y] else '')
@@ -211,6 +244,7 @@ class gameBoard(QWidget):
         else: self.flag -= 1
         self.mineLabel.setText(f'남은 지뢰: {self.mine-self.flag}')
         self.checked[x][y] = not self.checked[x][y]
+
 
     def loseGame(self):
         for x in range(self.h):
@@ -222,6 +256,34 @@ class gameBoard(QWidget):
                     )
                     self.butTiles[x][y].setText('♥')
                     self.butTiles[x][y].setDisabled(True)
+
+        reply = QMessageBox.question(self, 'You Lose', 'Restart?',
+                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            test2 = gameLevel(self)
+            # test2.newGame()
+        else:
+            self.close()
+    
+    def winGame(self):
+        for x in range(self.h):
+            for y in range(self.w):
+                if self.board[x][y] == 9:
+                    self.butTiles[x][y].setStyleSheet(
+                        "background-color:red;"
+                        "color:pink;"
+                    )
+                    self.butTiles[x][y].setText('♥')
+                    self.butTiles[x][y].setDisabled(True)
+
+        reply = QMessageBox.question(self, 'You Win!!!', 'Restart?',
+                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            test2 = gameLevel(self)
+            # test2.newGame()
+        else:
+            self.close()
+
 
     def closeEvent(self, event):
         reply = QMessageBox.question(self, "지뢰 찾기", "종료하시겠습니까?",
@@ -237,7 +299,5 @@ class gameBoard(QWidget):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    TEST = gameLevel()
-    # test = gameBoard(TEST)
-    # print(test.board)
+    game = gameLevel()
     sys.exit(app.exec_())
