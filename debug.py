@@ -240,7 +240,7 @@ class gameBoard (QWidget):
             self.loseGame()
 
     def rightClicked(self, x, y):
-        self.butTiles[x][y].setText('★' if self.checked[x][y] else '')
+        self.butTiles[x][y].setText('🚩' if self.checked[x][y] else '')
         if self.checked[x][y]: self.flag += 1
         else: self.flag -= 1
         self.mineLabel.setText(f'남은 지뢰: {self.mine-self.flag}')
@@ -255,7 +255,7 @@ class gameBoard (QWidget):
                         "background-color:red;"
                         "color:pink;"
                     )
-                    self.butTiles[x][y].setText('♥')
+                    self.butTiles[x][y].setText('💣')
                     self.butTiles[x][y].setDisabled(True)
 
         reply = QMessageBox.question(self, 'You Lose', 'Restart?',
