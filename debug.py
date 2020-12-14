@@ -274,7 +274,7 @@ class gameBoard (QWidget):
                         "background-color:red;"
                         "color:pink;"
                     )
-                    self.butTiles[x][y].setText('♥')
+                    self.butTiles[x][y].setText('💣')
                     self.butTiles[x][y].setDisabled(True)
 
         reply = QMessageBox.question(self, 'You Win!!!', 'Restart?',
